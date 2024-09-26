@@ -17,7 +17,7 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'oblakdb'
+    database: 'spotifyact'
 });
 
 // Connect to MySQL
@@ -60,7 +60,7 @@ app.post('/upload', upload.fields([{ name: 'mp3file', maxCount: 1 }, { name: 'al
     const albumCoverPath = albumCover ? `/uploads/${albumCover.filename}` : null;
 
     // Save file information to the database
-    const query = 'INSERT INTO tonapsongs (filename, filepath, album_cover, uploader_name) VALUES (?, ?, ?, ?)';
+    const query = 'INSERT INTO song (filename, filepath, album_cover, uploader_name) VALUES (?, ?, ?, ?)';
     db.query(query, [filename, filepath, albumCoverPath, uploaderName], (err, result) => {
         if (err) {
             console.error(`Failed to insert into database: ${err}`);
@@ -76,7 +76,7 @@ app.post('/delete', (req, res) => {
     const songId = req.body.song_id;
 
     // Find the file path in the database
-    const query = 'SELECT filepath, album_cover FROM tonapsongs WHERE id = ?';
+    const query = 'SELECT filepath, album_cover FROM song WHERE id = ?';
     db.query(query, [songId], (err, results) => {
         if (err || results.length === 0) {
             console.error(`Song not found: ${err}`);
@@ -102,7 +102,7 @@ app.post('/delete', (req, res) => {
             }
 
             // Remove the song record from the database
-            const deleteQuery = 'DELETE FROM tonapsongs WHERE id = ?';
+            const deleteQuery = 'DELETE FROM song WHERE id = ?';
             db.query(deleteQuery, [songId], (err) => {
                 if (err) {
                     console.error(`Failed to delete from database: ${err}`);
@@ -117,7 +117,7 @@ app.post('/delete', (req, res) => {
 
 // Function to retrieve songs from the database
 function getUploadedSongs(callback) {
-    const query = 'SELECT * FROM tonapsongs ORDER BY uploaded_at DESC';
+    const query = 'SELECT * FROM song ORDER BY uploaded_at DESC';
     db.query(query, (err, results) => {
         if (err) throw err;
         callback(results);
